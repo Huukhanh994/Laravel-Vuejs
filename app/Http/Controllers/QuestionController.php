@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AskRequestQuestion;
 use App\Question;
+use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
@@ -24,9 +26,9 @@ class QuestionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Question $question)
     {
-        //
+        return view('questions.create',compact('question'));
     }
 
     /**
@@ -35,9 +37,10 @@ class QuestionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(AskRequestQuestion $request)
     {
-        //
+        $request->user()->questions()->create($request->only('title','body'));
+        return redirect()->route('question.index')->with('success','Add successfully');
     }
 
     /**
@@ -46,11 +49,11 @@ class QuestionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Question $question)
     {
-        $detail_question = Question::find($id);
-        // dd($detail_question);
-        return view('questions.show')->with('detail_question',$detail_question);
+        $question->increment('views');
+
+        return view('questions.show',compact('question'));
     }
 
     /**
@@ -59,9 +62,12 @@ class QuestionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Question $question)
     {
-        //
+        if(\Gate::denies('update-question',$question)){
+            abort(403,'403');   
+        }
+        return view('questions.edit',compact('question'));
     }
 
     /**
@@ -71,9 +77,13 @@ class QuestionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(AskRequestQuestion $request,Question $question)
     {
-        //
+        if(\Gate::denies('update-question',$question)){
+            abort(403,'403');   
+        }
+        $question->update($request->only(['title','body']));
+        return redirect()->route('question.index')->with('success','Update successfully');
     }
 
     /**
@@ -82,8 +92,13 @@ class QuestionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Question $question)
     {
-        //
+        if(\Gate::denies('delete-question',$question)){
+            abort(403,'403');   
+        }
+        $question->delete();
+
+        return redirect()->route('question.index')->with('success','Delete successfully');
     }
 }
