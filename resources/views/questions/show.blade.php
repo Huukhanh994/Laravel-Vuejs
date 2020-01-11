@@ -70,7 +70,7 @@
                                 </a>
                                 <a href="" title="Mart this answer as best answer" class="vote-accepted mt-2">
                                     <i class="fas fa-check fa-2x"></i>
-                                    <span class="favorites-count">123</span>
+                                    <span class="favorites-count">123 Hello</span>
                                 </a>
                             </div>
                             <div class="media-body">
